@@ -3,7 +3,7 @@ name = "mobile-synthesizer"
 version = "0.1.0"
 description = "A web-based mobile synthesizer application built with FastAPI and Web Audio API"
 authors = ["Mobile Synthesizer Team <contact@mobile-synthesizer.dev>"]
-readme = "README.md"
+readme = "../README.md"
 packages = [{include = "app"}]
 
 [tool.poetry.dependencies]
