@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Space+Grotesk:wght@400;500;700" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#1919e6",
+            "background-light": "#f6f6f8",
+            "background-dark": "#111121",
+          },
+          fontFamily: {
+            "display": ["Space Grotesk"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-neutral-800 dark:text-neutral-200">
+<div class="relative flex h-auto min-h-screen w-full flex-col justify-between overflow-x-hidden">
+<div class="flex flex-col">
+<header class="flex items-center p-4">
+<button class="text-neutral-900 dark:text-white">
+<svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
+<path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
+</svg>
+</button>
+<h1 class="flex-1 text-center text-lg font-bold text-neutral-900 dark:text-white pr-6">Record &amp; Loop</h1>
+</header>
+<main class="flex flex-col items-center gap-6 px-4 pt-4 pb-8">
+<div class="w-full max-w-sm aspect-[4/3] bg-neutral-200 dark:bg-neutral-800/50 rounded-lg flex items-center justify-center p-4">
+<div class="w-full h-full bg-no-repeat bg-center" style="background-image: url('data:image/svg+xml,%3csvg width=\'100%25\' height=\'100%25\' xmlns=\'http://www.w3.org/2000/svg\'%3e%3crect width=\'100%25\' height=\'100%25\' fill=\'none\' rx=\'8\' ry=\'8\' stroke=\'%23333\' stroke-width=\'2\' stroke-dasharray=\'6%2c 14\' stroke-dashoffset=\'0\' stroke-linecap=\'square\'/%3e%3c/svg%3e');">
+<img alt="Waveform visualization" class="w-full h-full object-cover rounded-lg opacity-20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsDLRm5Pg-Vi6lPJ735fIiYX9LKRkUBfU7GOkE5U-fIDQ_8Wg3eDBRTPNqzr0X7B5Gkbbn8Lasdxy6QbqJU8kPJq3pNknFjlj8GLAHIQZ2vuL5rNMAG0vFGe6juYOLKbmpThiql1gpT9vZheafVqrfJt1523uf5jftjUbkz4eiv5dzzHdcmG_xlFtAqD8LdawzTBInLX0ZAXr7et2hB0Xjep39cyvTo6aBWGbx9zaqgKOdAE0fGnZVpx26HmhKF_1nW8p8wxOFTFE"/>
+</div>
+</div>
+<div class="text-center">
+<p class="text-2xl font-bold text-neutral-900 dark:text-white">Untitled Loop</p>
+<p class="text-base text-neutral-500 dark:text-neutral-400">0:00 / 0:32</p>
+</div>
+<div class="w-full flex items-center justify-center gap-4 text-neutral-900 dark:text-white">
+<button class="p-2 rounded-full hover:bg-primary/10">
+<svg fill="currentColor" height="32px" viewBox="0 0 256 256" width="32px" xmlns="http://www.w3.org/2000/svg">
+<path d="M208,47.88V208.12a16,16,0,0,1-24.43,13.43L64,146.77V216a8,8,0,0,1-16,0V40a8,8,0,0,1,16,0v69.23L183.57,34.45A15.95,15.95,0,0,1,208,47.88Z"></path>
+</svg>
+</button>
+<button class="p-2 rounded-full hover:bg-primary/10">
+<svg fill="currentColor" height="32px" viewBox="0 0 256 256" width="32px" xmlns="http://www.w3.org/2000/svg">
+<path d="M232,71.84V184.16a15.92,15.92,0,0,1-24.48,13.34L128,146.86v37.3a15.92,15.92,0,0,1-24.48,13.34L15.33,141.34a15.8,15.8,0,0,1,0-26.68L103.52,58.5A15.91,15.91,0,0,1,128,71.84v37.3L207.52,58.5A15.91,15.91,0,0,1,232,71.84Z"></path>
+</svg>
+</button>
+<button class="bg-primary text-white rounded-full p-4 shadow-lg shadow-primary/30">
+<svg fill="currentColor" height="32px" viewBox="0 0 256 256" width="32px" xmlns="http://www.w3.org/2000/svg">
+<path d="M218.23,154.23,192,128l26.23-26.23a12,12,0,0,0-17-17L175,111V80a12,12,0,0,0-24,0v31L124.77,84.77a12,12,0,0,0-17,17L134,128l-26.23,26.23a12,12,0,0,0,17,17L151,145v31a12,12,0,0,0,24,0V145l26.23,26.23a12,12,0,0,0,17-17ZM80,128a12,12,0,0,0,12-12V72.63a8,8,0,0,1,4.35-7.14l48-24a8,8,0,0,1,11.3,7.14V80a12,12,0,0,0,24,0V56a12,12,0,0,0-17-10.72L51,96.72A12,12,0,0,0,40,107.43V148.57a12,12,0,0,0,11,11.71l112,16A12,12,0,0,0,176,164V151a12,12,0,0,0-24,0v2.37l-60-8.57V116A12,12,0,0,0,80,128Z"></path>
+</svg>
+</button>
+<button class="p-2 rounded-full hover:bg-primary/10">
+<svg fill="currentColor" height="32px" viewBox="0 0 256 256" width="32px" xmlns="http://www.w3.org/2000/svg">
+<path d="M248,128a15.76,15.76,0,0,1-7.33,13.34L152.48,197.5A15.91,15.91,0,0,1,128,184.16v-37.3L48.48,197.5A15.91,15.91,0,0,1,24,184.16V71.84A15.91,15.91,0,0,1,48.48,58.5L128,109.14V71.84A15.91,15.91,0,0,1,152.48,58.5l88.19,56.16A15.76,15.76,0,0,1,248,128Z"></path>
+</svg>
+</button>
+<button class="p-2 rounded-full hover:bg-primary/10">
+<svg fill="currentColor" height="32px" viewBox="0 0 256 256" width="32px" xmlns="http://www.w3.org/2000/svg">
+<path d="M208,40V216a8,8,0,0,1-16,0V146.77L72.43,221.55A15.95,15.95,0,0,1,48,208.12V47.88A15.95,15.95,0,0,1,72.43,34.45L192,109.23V40a8,8,0,0,1,16,0Z"></path>
+</svg>
+</button>
+</div>
+<div class="w-full max-w-sm bg-neutral-200/50 dark:bg-neutral-800/50 rounded-lg p-4 mt-2">
+<div class="flex items-center justify-between mb-3">
+<h2 class="text-sm font-bold text-neutral-900 dark:text-white">Loop Layers</h2>
+<div class="flex items-center gap-2">
+<button class="p-1.5 rounded-full hover:bg-primary/10 text-neutral-500 dark:text-neutral-400">
+<span class="material-symbols-outlined text-base">
+                    add
+                </span>
+</button>
+<button class="p-1.5 rounded-full hover:bg-primary/10 text-neutral-500 dark:text-neutral-400">
+<span class="material-symbols-outlined text-base">
+                    undo
+                </span>
+</button>
+<button class="p-1.5 rounded-full hover:bg-primary/10 text-neutral-500 dark:text-neutral-400">
+<span class="material-symbols-outlined text-base">
+                    redo
+                </span>
+</button>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex items-center gap-3">
+<div class="flex-1 flex items-center gap-2 bg-white dark:bg-neutral-900/80 p-2 rounded-lg">
+<img alt="Waveform snippet" class="w-12 h-8 object-cover rounded" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCG3qjO5p3c0r-x8T6-V8_I2M3iYxUo9U1lH7wLwK1q9fO3w-T4Z0q0yB6xT0l8o1d0p3r3d9v8c0w1n8xM7t0k1o6h3r3i2v5r1i3j2f0e"/>
+<div class="flex-1">
+<p class="text-xs font-bold">Layer 1</p>
+<div class="w-full bg-neutral-200 dark:bg-neutral-700 h-1 rounded-full mt-1"><div class="bg-primary h-1 rounded-full" style="width: 75%"></div></div>
+</div>
+</div>
+<button class="p-2 rounded-full hover:bg-neutral-300/50 dark:hover:bg-neutral-700/50 text-neutral-500 dark:text-neutral-400">
+<span class="material-symbols-outlined text-lg">
+                    volume_up
+                </span>
+</button>
+<button class="p-2 rounded-full hover:bg-neutral-300/50 dark:hover:bg-neutral-700/50 text-neutral-500 dark:text-neutral-400">
+<span class="material-symbols-outlined text-lg">
+                    more_vert
+                </span>
+</button>
+</div>
+<div class="flex items-center gap-3 opacity-60">
+<div class="flex-1 flex items-center gap-2 bg-white dark:bg-neutral-900/80 p-2 rounded-lg">
+<img alt="Waveform snippet" class="w-12 h-8 object-cover rounded" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2e8y9o6p1d7x4f6c9k0m3n5o7r8s0t9v-x3y-z_w-a_b-c-d_e-f-g-h-i-j-k_l-m-n-o_p_q_r-s_t-u_v-w_x-y_z"/>
+<div class="flex-1">
+<p class="text-xs font-bold">Layer 2 (Muted)</p>
+<div class="w-full bg-neutral-200 dark:bg-neutral-700 h-1 rounded-full mt-1"><div class="bg-neutral-400 dark:bg-neutral-500 h-1 rounded-full" style="width: 50%"></div></div>
+</div>
+</div>
+<button class="p-2 rounded-full hover:bg-neutral-300/50 dark:hover:bg-neutral-700/50 text-neutral-500 dark:text-neutral-400">
+<span class="material-symbols-outlined text-lg">
+                    volume_off
+                </span>
+</button>
+<button class="p-2 rounded-full hover:bg-neutral-300/50 dark:hover:bg-neutral-700/50 text-neutral-500 dark:text-neutral-400">
+<span class="material-symbols-outlined text-lg">
+                    more_vert
+                </span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+<footer class="sticky bottom-0">
+<div class="flex gap-4 p-4">
+<button class="flex-1 rounded-lg h-12 text-sm font-bold bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-white">Clear</button>
+<button class="flex-1 rounded-lg h-12 text-sm font-bold bg-primary text-white">Export Loop</button>
+</div>
+<nav class="flex justify-around border-t border-neutral-200 dark:border-neutral-800 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm pt-2 pb-4">
+<a class="flex flex-col items-center gap-1 text-neutral-500 dark:text-neutral-400" href="#">
+<svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
+<path d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Zm0,176H48V48H208V208Z"></path>
+</svg>
+<p class="text-xs font-medium">Synthesizer</p>
+</a>
+<a class="flex flex-col items-center gap-1 text-neutral-500 dark:text-neutral-400" href="#">
+<svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
+<path d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Zm0,16V152h-28.7A15.86,15.86,0,0,0,168,156.69L148.69,176H107.31L88,156.69A15.86,15.86,0,0,0,76.69,152H48V48Zm0,160H48V168H76.69L96,187.31A15.86,15.86,0,0,0,107.31,192h41.38A15.86,15.86,0,0,0,160,187.31L179.31,168H208v40Z"></path>
+</svg>
+<p class="text-xs font-medium">Presets</p>
+</a>
+<a class="flex flex-col items-center gap-1 text-neutral-500 dark:text-neutral-400" href="#">
+<svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
+<path d="M40,88H73a32,32,0,0,0,62,0h81a8,8,0,0,0,0-16H135a32,32,0,0,0-62,0H40a8,8,0,0,0,0,16Zm64-24A16,16,0,1,1,88,80,16,16,0,0,1,104,64ZM216,168H199a32,32,0,0,0-62,0H40a8,8,0,0,0,0,16h97a32,32,0,0,0,62,0h17a8,8,0,0,0,0-16Zm-48,24a16,16,0,1,1,16-16A16,16,0,0,1,168,192Z"></path>
+</svg>
+<p class="text-xs font-medium">Mixer</p>
+</a>
+<a class="flex flex-col items-center gap-1 text-neutral-500 dark:text-neutral-400" href="#">
+<svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
+<path d="M200,40H56A16,16,0,0,0,40,56V200a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V56A16,16,0,0,0,200,40Zm0,80H136V56h64ZM120,56v64H56V56ZM56,136h64v64H56Zm144,64H136V136h64v64Z"></path>
+</svg>
+<p class="text-xs font-medium">Sequencer</p>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<div class="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+<svg fill="currentColor" height="16px" viewBox="0 0 256 256" width="16px" xmlns="http://www.w3.org/2000/svg">
+<path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Z"></path><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Z"></path>
+</svg>
+</div>
+<p class="text-xs font-bold">Record</p>
+</a>
+</nav>
+</footer>
+</div>
+
+</body></html>
