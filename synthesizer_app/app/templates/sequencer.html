@@ -1,41 +1,8 @@
-<!DOCTYPE html>
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<title>Sequencer - Mobile Synthesizer</title>
-<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
-<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
-<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Space+Grotesk:wght@400;500;700" onload="this.rel='stylesheet'" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            "primary": "#1919e6",
-            "background-light": "#f6f6f8",
-            "background-dark": "#111121",
-          },
-          fontFamily: {
-            "display": ["Space Grotesk"]
-          },
-          borderRadius: {
-            "DEFAULT": "0.25rem",
-            "lg": "0.5rem",
-            "xl": "0.75rem",
-            "full": "9999px"
-          },
-        },
-      },
-    }
-  </script>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
-  </head>
-<body class="font-display bg-background-light dark:bg-background-dark">
+{% extends "base.html" %}
+
+{% block title %}Sequencer - Mobile Synthesizer{% endblock %}
+
+{% block body %}
 <div class="relative flex h-auto min-h-screen w-full flex-col justify-between overflow-x-hidden">
 <div class="flex-grow">
 <header class="sticky top-0 z-10 flex items-center justify-between border-b border-primary/20 bg-background-light/80 p-4 pb-2 backdrop-blur-sm dark:bg-background-dark/80">
@@ -123,5 +90,4 @@
 <div class="h-3"></div>
 </footer>
 </div>
-
-</body></html>
+{% endblock %}
