@@ -1,0 +1,12 @@
+services:
+  app:
+    build:
+      context: .
+      target: development
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./synthesizer_app:/app
+      - ./README.md:/README.md:ro
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
