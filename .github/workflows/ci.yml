@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: ["*"]
+  pull_request:
+    branches: [main]
+
+env:
+  DOCKER_IMAGE: mobile-synthesizer
+
+jobs:
+  # ---- Build the dev image once, export as artifact for downstream jobs ----
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build development image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: development
+          tags: ${{ env.DOCKER_IMAGE }}:dev
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Save image as artifact
+        run: docker save ${{ env.DOCKER_IMAGE }}:dev -o /tmp/dev-image.tar
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dev-image
+          path: /tmp/dev-image.tar
+          retention-days: 1
+
+  # ---- Lint: black, isort, flake8 ----
+  lint:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dev-image
+          path: /tmp
+
+      - name: Load image
+        run: docker load -i /tmp/dev-image.tar
+
+      - name: Black (formatting)
+        run: docker run --rm ${{ env.DOCKER_IMAGE }}:dev black --check .
+
+      - name: isort (import order)
+        run: docker run --rm ${{ env.DOCKER_IMAGE }}:dev isort --check-only .
+
+      - name: flake8 (linting)
+        run: docker run --rm ${{ env.DOCKER_IMAGE }}:dev flake8 app/ tests/
+
+  # ---- Type checking: mypy ----
+  typecheck:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dev-image
+          path: /tmp
+
+      - name: Load image
+        run: docker load -i /tmp/dev-image.tar
+
+      - name: mypy (type checking)
+        run: docker run --rm ${{ env.DOCKER_IMAGE }}:dev mypy app/
+
+  # ---- Tests: pytest ----
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dev-image
+          path: /tmp
+
+      - name: Load image
+        run: docker load -i /tmp/dev-image.tar
+
+      - name: pytest
+        run: docker run --rm ${{ env.DOCKER_IMAGE }}:dev pytest -v

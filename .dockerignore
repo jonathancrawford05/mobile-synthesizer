@@ -1,0 +1,17 @@
+.git
+__pycache__
+*.pyc
+*.pyo
+.venv
+venv
+env
+*.egg-info
+.mypy_cache
+.pytest_cache
+*.db
+*.sqlite3
+.env
+.env.*
+.github
+*.md
+!README.md
