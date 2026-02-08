@@ -1,41 +1,8 @@
-<!DOCTYPE html>
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<title>Recording - Mobile Synthesizer</title>
-<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
-<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
-<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Space+Grotesk:wght@400;500;700" onload="this.rel='stylesheet'" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            "primary": "#1919e6",
-            "background-light": "#f6f6f8",
-            "background-dark": "#111121",
-          },
-          fontFamily: {
-            "display": ["Space Grotesk"]
-          },
-          borderRadius: {
-            "DEFAULT": "0.25rem",
-            "lg": "0.5rem",
-            "xl": "0.75rem",
-            "full": "9999px"
-          },
-        },
-      },
-    }
-  </script>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
-  </head>
-<body class="bg-background-light dark:bg-background-dark font-display text-neutral-800 dark:text-neutral-200">
+{% extends "base.html" %}
+
+{% block title %}Recording - Mobile Synthesizer{% endblock %}
+
+{% block body %}
 <div class="relative flex h-auto min-h-screen w-full flex-col justify-between overflow-x-hidden">
 <div class="flex flex-col">
 <header class="flex items-center p-4">
@@ -131,5 +98,4 @@
 </nav>
 </footer>
 </div>
-
-</body></html>
+{% endblock %}
