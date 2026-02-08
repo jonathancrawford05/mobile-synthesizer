@@ -26,27 +26,45 @@
 - Wire JS event handlers to audio parameters via `static/js/audio/` modules
 - Consider moving heavyweight unused deps (librosa, sqlalchemy, etc.) to optional Poetry groups
 
-### Phase 3: Data & Storage (Week 7-9)
+### Phase 3: Synthesizer Engine Deepening (Week 7-9) — IN PROGRESS
 
 | Component | Description | Cost | Key Considerations | Testing Strategy |
 |-----------|-------------|------|-------------------|------------------|
-| **SQLAlchemy ORM** | Database abstraction layer | FREE | Python standard, excellent migration support | Data integrity tests |
+| **Multi-oscillator** | 3 oscillators with independent waveform control | FREE | All 3 dropdowns already in UI; osc3 defaults to "off" | Verify each osc produces audio, mix is correct |
+| **BiquadFilter** | Filter with cutoff frequency and resonance (Q) | FREE | Lowpass/highpass/bandpass types already in UI; add cutoff + Q sliders | Sweep cutoff, verify audible filtering |
+| **ADSR Envelope** | Attack/Decay/Sustain/Release gain shaping | FREE | Shapes note on/off transitions; replaces abrupt start/stop | Verify smooth fade-in/out, sustain hold |
+| **Delay Effect** | Delay with time and feedback controls | FREE | Uses native DelayNode + feedback loop; on/off via existing toggle | Verify echo repeats, feedback doesn't clip |
+
+**Deferred to later phases:**
+- Reverb (ConvolverNode with impulse response generation)
+- Chorus/Flanger (modulated delay — more complex LFO routing)
+- Filter rolloff cascading (12/24/36 dB — requires dynamic graph rebuild)
+- Filter envelope modulation (ADSR → filter cutoff)
+
+### Phase 4: Data, Storage & Presets (Week 10-12)
+
+| Component | Description | Cost | Key Considerations | Testing Strategy |
+|-----------|-------------|------|-------------------|------------------|
+| **Preset save/load** | localStorage-based parameter snapshots | FREE | No database needed; wire up /presets page | Save/recall/delete presets |
+| **SQLAlchemy ORM** | Database abstraction layer | FREE | Only when user accounts or shared presets are needed | Data integrity tests |
 | **Alembic Migrations** | Database version control | FREE | Handles schema changes safely | Migration rollback tests |
 | **File Storage (Local)** | Audio file storage | FREE | Local filesystem initially | File upload/download tests |
 
-**Phase 3 architecture tasks:**
+**Phase 4 architecture tasks:**
 - Add `db` service to docker-compose.yml when moving beyond SQLite
 - Populate `app/models/` and `app/services/` packages
 
-### Phase 4: Advanced Features (Week 10-14)
+### Phase 5: Advanced Features (Week 13-16)
 
 | Component | Description | Cost | Key Considerations | Testing Strategy |
 |-----------|-------------|------|-------------------|------------------|
+| **WebSocket real-time sync** | Server-side parameter state | FREE | Enables multi-client sync and future collaboration | Connection stability tests |
 | **JWT Authentication** | User session management | FREE (python-jose) | Secure, stateless authentication | Security penetration tests |
 | **PWA Features** | Offline functionality | FREE | Service workers, app-like experience | Offline capability tests |
 | **Audio Recording** | MediaRecorder API | FREE | Browser-native recording | Recording quality tests |
+| **Advanced Effects** | Reverb, chorus, flanger | FREE | ConvolverNode + modulated delay lines | Audio quality tests |
 
-### Phase 5: Deployment (Week 15-16)
+### Phase 6: Deployment (Week 17-18)
 
 | Component | Description | Cost | Key Considerations | Testing Strategy |
 |-----------|-------------|------|-------------------|------------------|
@@ -69,18 +87,31 @@
 - ✅ Static JS scaffold (audio/, ws/, ui/ directories)
 - **Test**: Can we see the designs in browser? ✅
 
-### Iteration 2 (Next Session): Basic Audio
-- Add simple Web Audio API integration
-- Single oscillator with frequency control
-- Connect one UI slider to audio parameter
-- Add IDs/data attributes to synthesizer.html controls
-- **Test**: Can we hear a tone and control its pitch?
+### Iteration 2: Basic Audio — COMPLETE
+- ✅ Web Audio API integration (AudioContext → OscillatorNode → GainNode)
+- ✅ Single oscillator with frequency control (20–2000 Hz slider)
+- ✅ Gain slider (0–100%)
+- ✅ Play/stop button with waveform selector
+- ✅ ES module architecture (audio/engine.js, ui/controls.js, app.js)
+- **Test**: Can we hear a tone and control its pitch? ✅
 
-### Iteration 3: WebSocket Integration
-- Real-time parameter updates
-- Connect multiple UI controls
-- Basic preset save/load
-- **Test**: Do changes update in real-time?
+### Iteration 3: Synthesizer Engine Deepening — IN PROGRESS
+- Wire all 3 oscillators with independent waveform control
+- BiquadFilter with cutoff frequency and resonance sliders
+- ADSR envelope (attack/decay/sustain/release) for smooth note shaping
+- Delay effect with time, feedback, and enable/disable
+- **Test**: Can we layer oscillators, shape the sound with filter + ADSR, and add delay?
+
+### Iteration 4: Presets & Data
+- localStorage preset save/load on /presets page
+- Database layer only if user accounts are needed
+- **Test**: Can we save and recall synth parameter snapshots?
+
+### Iteration 5: WebSocket & Advanced Features
+- Real-time parameter sync via WebSocket
+- Advanced effects (reverb, chorus)
+- PWA offline support, audio recording
+- **Test**: Do changes sync across clients in real-time?
 
 ## Risk Mitigation
 

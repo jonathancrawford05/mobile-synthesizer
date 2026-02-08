@@ -96,42 +96,89 @@
 </div>
 </section>
 <section>
-<h2 class="mb-4 text-lg font-bold text-gray-900 dark:text-white">Filters</h2>
-<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+<h2 class="mb-4 text-lg font-bold text-gray-900 dark:text-white">Filter</h2>
+<div class="mb-4">
 <select class="form-select w-full appearance-none rounded-lg border-none bg-primary/10 px-4 py-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary dark:bg-primary/20 dark:text-white dark:placeholder-gray-400" id="filter-type">
 <option value="lowpass">Low Pass</option>
 <option value="highpass">High Pass</option>
 <option value="bandpass">Band Pass</option>
 </select>
-<select class="form-select w-full appearance-none rounded-lg border-none bg-primary/10 px-4 py-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary dark:bg-primary/20 dark:text-white dark:placeholder-gray-400" id="filter-rolloff">
-<option value="12">12dB</option>
-<option value="24" selected="">24dB</option>
-<option value="36">36dB</option>
-</select>
-<select class="form-select w-full appearance-none rounded-lg border-none bg-primary/10 px-4 py-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary dark:bg-primary/20 dark:text-white dark:placeholder-gray-400" id="filter-envelope">
-<option value="env1">Envelope 1</option>
-<option value="env2">Envelope 2</option>
-</select>
+</div>
+<div class="space-y-3">
+<div>
+<div class="mb-1 flex items-center justify-between">
+<label class="text-sm font-medium text-gray-700 dark:text-gray-300" for="filter-cutoff">Cutoff</label>
+<span id="filter-cutoff-value" class="text-sm font-medium text-primary">2000 Hz</span>
+</div>
+<input id="filter-cutoff" type="range" min="20" max="20000" value="2000" step="1" class="h-2 w-full cursor-pointer appearance-none rounded-full bg-primary/20 accent-primary"/>
+</div>
+<div>
+<div class="mb-1 flex items-center justify-between">
+<label class="text-sm font-medium text-gray-700 dark:text-gray-300" for="filter-q">Resonance (Q)</label>
+<span id="filter-q-value" class="text-sm font-medium text-primary">1.0</span>
+</div>
+<input id="filter-q" type="range" min="0.1" max="20" value="1" step="0.1" class="h-2 w-full cursor-pointer appearance-none rounded-full bg-primary/20 accent-primary"/>
+</div>
 </div>
 </section>
+<!-- ADSR Envelope -->
 <section>
-<h2 class="mb-4 text-lg font-bold text-gray-900 dark:text-white">Effects</h2>
-<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-<select class="form-select w-full appearance-none rounded-lg border-none bg-primary/10 px-4 py-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary dark:bg-primary/20 dark:text-white dark:placeholder-gray-400" id="effect-type">
-<option value="reverb">Reverb</option>
-<option value="delay">Delay</option>
-<option value="chorus">Chorus</option>
-<option value="flanger">Flanger</option>
-</select>
-<select class="form-select w-full appearance-none rounded-lg border-none bg-primary/10 px-4 py-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary dark:bg-primary/20 dark:text-white dark:placeholder-gray-400" id="reverb-type">
-<option value="hall1">Small Hall</option>
-<option value="hall2">Large Hall</option>
-<option value="plate">Plate</option>
-</select>
-<select class="form-select w-full appearance-none rounded-lg border-none bg-primary/10 px-4 py-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary dark:bg-primary/20 dark:text-white dark:placeholder-gray-400" id="effect-enable">
+<h2 class="mb-4 text-lg font-bold text-gray-900 dark:text-white">Envelope (ADSR)</h2>
+<div class="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-4">
+<div>
+<div class="mb-1 flex items-center justify-between">
+<label class="text-sm font-medium text-gray-700 dark:text-gray-300" for="attack">A</label>
+<span id="attack-value" class="text-xs font-medium text-primary">0.01 s</span>
+</div>
+<input id="attack" type="range" min="0" max="2" value="0.01" step="0.01" class="h-2 w-full cursor-pointer appearance-none rounded-full bg-primary/20 accent-primary"/>
+</div>
+<div>
+<div class="mb-1 flex items-center justify-between">
+<label class="text-sm font-medium text-gray-700 dark:text-gray-300" for="decay">D</label>
+<span id="decay-value" class="text-xs font-medium text-primary">0.10 s</span>
+</div>
+<input id="decay" type="range" min="0" max="2" value="0.1" step="0.01" class="h-2 w-full cursor-pointer appearance-none rounded-full bg-primary/20 accent-primary"/>
+</div>
+<div>
+<div class="mb-1 flex items-center justify-between">
+<label class="text-sm font-medium text-gray-700 dark:text-gray-300" for="sustain">S</label>
+<span id="sustain-value" class="text-xs font-medium text-primary">70%</span>
+</div>
+<input id="sustain" type="range" min="0" max="1" value="0.7" step="0.01" class="h-2 w-full cursor-pointer appearance-none rounded-full bg-primary/20 accent-primary"/>
+</div>
+<div>
+<div class="mb-1 flex items-center justify-between">
+<label class="text-sm font-medium text-gray-700 dark:text-gray-300" for="release">R</label>
+<span id="release-value" class="text-xs font-medium text-primary">0.30 s</span>
+</div>
+<input id="release" type="range" min="0" max="3" value="0.3" step="0.01" class="h-2 w-full cursor-pointer appearance-none rounded-full bg-primary/20 accent-primary"/>
+</div>
+</div>
+</section>
+<!-- Delay Effect -->
+<section>
+<div class="mb-4 flex items-center justify-between">
+<h2 class="text-lg font-bold text-gray-900 dark:text-white">Delay</h2>
+<select id="delay-enable" class="form-select appearance-none rounded-lg border-none bg-primary/10 px-3 py-1.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary dark:bg-primary/20 dark:text-white">
 <option value="off">Off</option>
 <option value="on">On</option>
 </select>
+</div>
+<div class="space-y-3">
+<div>
+<div class="mb-1 flex items-center justify-between">
+<label class="text-sm font-medium text-gray-700 dark:text-gray-300" for="delay-time">Time</label>
+<span id="delay-time-value" class="text-sm font-medium text-primary">300 ms</span>
+</div>
+<input id="delay-time" type="range" min="0.01" max="1" value="0.3" step="0.01" class="h-2 w-full cursor-pointer appearance-none rounded-full bg-primary/20 accent-primary"/>
+</div>
+<div>
+<div class="mb-1 flex items-center justify-between">
+<label class="text-sm font-medium text-gray-700 dark:text-gray-300" for="delay-feedback">Feedback</label>
+<span id="delay-feedback-value" class="text-sm font-medium text-primary">40%</span>
+</div>
+<input id="delay-feedback" type="range" min="0" max="0.9" value="0.4" step="0.01" class="h-2 w-full cursor-pointer appearance-none rounded-full bg-primary/20 accent-primary"/>
+</div>
 </div>
 </section>
 </div>
