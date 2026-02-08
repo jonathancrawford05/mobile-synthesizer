@@ -3,7 +3,6 @@ Test script for Mobile Synthesizer FastAPI application
 Tests basic functionality and all route endpoints
 """
 
-import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app

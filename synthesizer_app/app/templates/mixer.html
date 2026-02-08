@@ -1,43 +1,8 @@
-<!DOCTYPE html>
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Mixer - Mobile Synthesizer</title>
-<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
-<script>
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              primary: "#1919e6",
-              "background-light": "#f6f6f8",
-              "background-dark": "#111121",
-            },
-            fontFamily: {
-              display: ["Space Grotesk"],
-            },
-            borderRadius: {
-              DEFAULT: "0.25rem",
-              lg: "0.5rem",
-              xl: "0.75rem",
-              full: "9999px",
-            },
-          },
-        },
-      };
-    </script>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
-  </head>
-<body class="bg-background-light dark:bg-background-dark font-display">
+{% extends "base.html" %}
+
+{% block title %}Mixer - Mobile Synthesizer{% endblock %}
+
+{% block body %}
 <div class="flex h-full min-h-screen flex-col">
 <header class="sticky top-0 z-10 bg-background-light/80 backdrop-blur-sm dark:bg-background-dark/80">
 <div class="flex items-center justify-between p-4">
@@ -211,5 +176,4 @@
 </nav>
 </footer>
 </div>
-
-</body></html>
+{% endblock %}

@@ -2,7 +2,7 @@
 
 ## Component Breakdown & Cost Analysis
 
-### Phase 1: Foundation Components (Week 1-3)
+### Phase 1: Foundation Components (Week 1-3) — COMPLETE
 
 | Component | Description | Cost | Key Considerations | Testing Strategy |
 |-----------|-------------|------|-------------------|------------------|
@@ -10,6 +10,8 @@
 | **SQLite Database** | Local data storage | FREE | File-based, no server required, perfect for prototyping | Database migration tests |
 | **HTML/CSS Frontend** | Existing designs integration | FREE | Already created, need JS integration | Visual regression testing |
 | **Web Audio API** | Browser-native audio synthesis | FREE | Built into browsers, no external dependencies | Audio parameter validation |
+| **Docker** | Containerization | FREE | Moved from Phase 5 — simpler to containerize early | CI builds & tests inside container |
+| **GitHub Actions CI** | Automated lint/typecheck/test | FREE | Docker-based pipeline, single environment source of truth | Runs on every push & PR |
 
 ### Phase 2: Audio Engine Components (Week 4-6)
 
@@ -19,6 +21,11 @@
 | **WebSocket Communication** | Real-time parameter sync | FREE | Built into FastAPI, handles connection management | Connection stability tests |
 | **Audio Context Management** | Browser audio permissions & lifecycle | FREE | Handle mobile audio restrictions | Cross-browser compatibility |
 
+**Phase 2 architecture tasks** (carry-forward from refactor):
+- Add IDs / `data-param` attributes to interactive UI elements as each page becomes functional
+- Wire JS event handlers to audio parameters via `static/js/audio/` modules
+- Consider moving heavyweight unused deps (librosa, sqlalchemy, etc.) to optional Poetry groups
+
 ### Phase 3: Data & Storage (Week 7-9)
 
 | Component | Description | Cost | Key Considerations | Testing Strategy |
@@ -26,6 +33,10 @@
 | **SQLAlchemy ORM** | Database abstraction layer | FREE | Python standard, excellent migration support | Data integrity tests |
 | **Alembic Migrations** | Database version control | FREE | Handles schema changes safely | Migration rollback tests |
 | **File Storage (Local)** | Audio file storage | FREE | Local filesystem initially | File upload/download tests |
+
+**Phase 3 architecture tasks:**
+- Add `db` service to docker-compose.yml when moving beyond SQLite
+- Populate `app/models/` and `app/services/` packages
 
 ### Phase 4: Advanced Features (Week 10-14)
 
@@ -39,23 +50,30 @@
 
 | Component | Description | Cost | Key Considerations | Testing Strategy |
 |-----------|-------------|------|-------------------|------------------|
-| **Docker** | Containerization | FREE | Consistent deployment environment | Container startup tests |
+| **Production Docker config** | Multi-stage prod build | FREE | Already containerized — focus on prod optimisation | Image size, startup time |
 | **GitHub Pages/Vercel** | Free hosting | FREE | Static site hosting with API proxying | Deployment automation tests |
 | **SQLite File Storage** | Production database | FREE | Simple, no server management needed | Backup/restore tests |
+| **CD pipeline** | Deploy-on-merge workflow | FREE | Extend existing CI with deploy job | Smoke tests post-deploy |
 
 ## Implementation Priorities
 
-### Iteration 1 (This Session): Project Foundation
+### Iteration 1: Project Foundation — COMPLETE
 - ✅ Create project structure
 - ✅ Set up FastAPI basic application
 - ✅ Integrate existing HTML designs
 - ✅ Basic static file serving
-- **Test**: Can we see the designs in browser?
+- ✅ Docker containerization (multi-stage: production + development)
+- ✅ GitHub Actions CI pipeline (lint, typecheck, test — all inside Docker)
+- ✅ Jinja2 template inheritance (base.html)
+- ✅ Router split (api/pages.py, api/endpoints.py)
+- ✅ Static JS scaffold (audio/, ws/, ui/ directories)
+- **Test**: Can we see the designs in browser? ✅
 
 ### Iteration 2 (Next Session): Basic Audio
 - Add simple Web Audio API integration
 - Single oscillator with frequency control
 - Connect one UI slider to audio parameter
+- Add IDs/data attributes to synthesizer.html controls
 - **Test**: Can we hear a tone and control its pitch?
 
 ### Iteration 3: WebSocket Integration

@@ -1,57 +1,22 @@
-<!DOCTYPE html>
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Mobile Synthesizer</title>
-<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
-<script>
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              primary: "#1919e6",
-              "background-light": "#f6f6f8",
-              "background-dark": "#111121",
-            },
-            fontFamily: {
-              display: ["Space Grotesk"],
-            },
-            borderRadius: {
-              DEFAULT: "0.25rem",
-              lg: "0.5rem",
-              xl: "0.75rem",
-              full: "9999px",
-            },
-          },
-        },
-      };
-    </script>
+{% extends "base.html" %}
+
+{% block title %}Mobile Synthesizer{% endblock %}
+
+{% block head_extra %}
 <style>
-      body {
-        font-family: "Space Grotesk", sans-serif;
-      }
-      .form-select {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239393c8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-        background-position: right 0.5rem center;
-        background-repeat: no-repeat;
-        background-size: 1.5em 1.5em;
-        padding-right: 2.5rem;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
-    </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
-  </head>
-<body class="bg-background-light dark:bg-background-dark font-display">
+  .form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239393c8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
 <div class="flex h-screen flex-col">
 <header class="flex items-center justify-between border-b border-primary/20 p-4">
 <h1 class="flex-1 text-center text-lg font-bold text-gray-900 dark:text-white">Synthesizer</h1>
@@ -161,11 +126,8 @@
 </nav>
 </footer>
 </div>
+{% endblock %}
 
-<!-- Basic Audio Engine Placeholder -->
-<script>
-// Placeholder for future Web Audio API integration
-console.log("Mobile Synthesizer - Ready for audio engine integration");
-</script>
-
-</body></html>
+{% block scripts %}
+<script src="/static/js/app.js"></script>
+{% endblock %}
