@@ -1,37 +1,36 @@
 /**
- * Audio engine — manages a multi-oscillator synth with filter, ADSR, and delay.
+ * Polyphonic audio engine — each note gets its own voice (oscillators + ADSR),
+ * feeding into a shared filter → delay → master chain.
  *
- * Signal chain:
+ * Voice (per note):
  *   Osc1 ─┐
- *   Osc2 ─┼─→ BiquadFilter ─→ ADSR Gain ─→ Delay (wet/dry) ─→ Master Gain ─→ Destination
+ *   Osc2 ─┼─→ EnvGain (per-voice ADSR)
  *   Osc3 ─┘
+ *
+ * Shared chain:
+ *   All voices ─→ BiquadFilter ─→ Delay (wet/dry) ─→ MasterGain ─→ Destination
  *
  * Usage:
  *   const engine = new AudioEngine();
- *   engine.start();
- *   engine.setOscWaveform(0, "square");
- *   engine.setFilterCutoff(800);
- *   engine.setAttack(0.2);
- *   engine.setDelayEnabled(true);
- *   engine.stop();
+ *   engine.noteOn(60);  // middle C
+ *   engine.noteOff(60);
  */
 
 export class AudioEngine {
   constructor() {
     /** @type {AudioContext | null} */
     this._ctx = null;
-    this._playing = false;
 
-    // --- Oscillators (3) ---
-    /** @type {(OscillatorNode | null)[]} */
-    this._oscs = [null, null, null];
-    /** @type {(GainNode | null)[]} */
-    this._oscGains = [null, null, null];
+    // --- Voice management ---
+    /** @type {Map<number, {oscs: OscillatorNode[], oscGains: GainNode[], envGain: GainNode}>} */
+    this._voices = new Map();
+    this._maxPolyphony = 8;
+
+    // --- Oscillator settings (shared across voices) ---
     this._waveforms = ["sine", "square", "off"];
     this._oscLevels = [0.5, 0.5, 0.5];
-    this._frequency = 440;
 
-    // --- Filter ---
+    // --- Filter (shared) ---
     /** @type {BiquadFilterNode | null} */
     this._filter = null;
     this._filterType = "lowpass";
@@ -43,10 +42,8 @@ export class AudioEngine {
     this._decay = 0.1;
     this._sustain = 0.7;
     this._release = 0.3;
-    /** @type {GainNode | null} */
-    this._envGain = null;
 
-    // --- Delay effect ---
+    // --- Delay (shared) ---
     /** @type {DelayNode | null} */
     this._delayNode = null;
     /** @type {GainNode | null} */
@@ -59,94 +56,85 @@ export class AudioEngine {
     this._delayFeedbackValue = 0.4;
     this._delayEnabled = false;
 
-    // --- Master ---
+    // --- Master (shared) ---
     this._masterGainValue = 0.5;
     /** @type {GainNode | null} */
     this._masterGain = null;
 
-    // Cleanup timer for release tail
-    this._releaseTimer = null;
+    // Shared chain state
+    this._chainBuilt = false;
   }
 
   /* ---- public getters ---- */
 
   get playing() {
-    return this._playing;
+    return this._voices.size > 0;
   }
 
-  /* ---- lifecycle ---- */
+  /* ---- note API ---- */
 
-  /**
-   * Start the synth. First call creates the AudioContext
-   * (must happen inside a user-gesture handler on mobile).
-   */
-  start() {
-    if (this._playing) return;
+  /** Play a note by MIDI number (e.g. 60 = C4). */
+  noteOn(midiNote) {
+    if (this._voices.has(midiNote)) return;
 
-    // Cancel any pending release cleanup
-    if (this._releaseTimer) {
-      clearTimeout(this._releaseTimer);
-      this._releaseTimer = null;
-      this._teardown();
+    // Voice stealing: drop oldest voice if at capacity
+    if (this._voices.size >= this._maxPolyphony) {
+      const oldest = this._voices.keys().next().value;
+      this.noteOff(oldest);
     }
 
-    this._ensureContext();
-    this._buildGraph();
-    this._triggerAttack();
-    this._playing = true;
+    this._ensureChain();
+
+    const freq = 440 * Math.pow(2, (midiNote - 69) / 12);
+    const voice = this._createVoice(freq);
+    this._voices.set(midiNote, voice);
   }
 
-  /** Stop the synth — applies release envelope then cleans up. */
+  /** Release a note — triggers ADSR release, then cleans up. */
+  noteOff(midiNote) {
+    const voice = this._voices.get(midiNote);
+    if (!voice) return;
+    this._voices.delete(midiNote);
+    this._releaseVoice(voice);
+  }
+
+  /** Stop all active notes. */
   stop() {
-    if (!this._playing) return;
-    this._playing = false;
-    this._triggerRelease();
-
-    // Teardown after release completes
-    const ms = this._release * 1000 + 80;
-    this._releaseTimer = setTimeout(() => {
-      this._teardown();
-      this._releaseTimer = null;
-    }, ms);
+    for (const note of [...this._voices.keys()]) {
+      this.noteOff(note);
+    }
   }
 
-  /** Toggle play / stop — returns the new playing state. */
+  /** Toggle a single note (middle C) — for the play button. */
   toggle() {
-    if (this._playing) {
+    if (this._voices.size > 0) {
       this.stop();
-    } else {
-      this.start();
+      return false;
     }
-    return this._playing;
+    this.noteOn(60);
+    return true;
   }
 
   /* ---- oscillator controls ---- */
 
-  /** Set frequency in Hz for all oscillators. */
-  setFrequency(hz) {
-    this._frequency = hz;
-    for (const osc of this._oscs) {
-      if (osc) osc.frequency.value = hz;
-    }
-  }
-
-  /** Set waveform for a specific oscillator (index 0–2). */
+  /** Set waveform for oscillator slot (0–2). Takes effect on next noteOn. */
   setOscWaveform(index, type) {
     this._waveforms[index] = type;
-    // If playing, rebuild is needed when toggling off ↔ on
-    if (this._oscs[index] && type !== "off") {
-      this._oscs[index].type = type;
-    } else if (this._playing) {
-      // Toggled off→on or on→off: rebuild the graph
-      this._rebuildWhilePlaying();
+    // Update currently playing voices where possible
+    for (const voice of this._voices.values()) {
+      if (voice.oscs[index] && type !== "off") {
+        voice.oscs[index].type = type;
+      }
     }
   }
 
-  /** Set individual oscillator gain (0–1). */
+  /** Set per-oscillator mix level (0–1). */
   setOscLevel(index, level) {
     this._oscLevels[index] = level;
-    if (this._oscGains[index]) {
-      this._oscGains[index].gain.value = level;
+    for (const voice of this._voices.values()) {
+      if (voice.oscGains[index]) {
+        voice.oscGains[index].gain.value = level;
+      }
     }
   }
 
@@ -211,7 +199,7 @@ export class AudioEngine {
     if (this._masterGain) this._masterGain.gain.value = level;
   }
 
-  /* ---- internal: context ---- */
+  /* ---- internal: context & shared chain ---- */
 
   _ensureContext() {
     if (!this._ctx) {
@@ -222,9 +210,13 @@ export class AudioEngine {
     }
   }
 
-  /* ---- internal: graph construction ---- */
-
-  _buildGraph() {
+  /** Build the shared signal chain once (filter → delay → master → destination). */
+  _ensureChain() {
+    if (this._chainBuilt) {
+      this._ensureContext();
+      return;
+    }
+    this._ensureContext();
     const ctx = this._ctx;
 
     // Master gain → destination
@@ -232,120 +224,105 @@ export class AudioEngine {
     this._masterGain.gain.value = this._masterGainValue;
     this._masterGain.connect(ctx.destination);
 
-    // Delay effect → master
-    this._buildDelay();
-    this._dryGain.connect(this._masterGain);
-    this._delayWet.connect(this._masterGain);
-
-    // Envelope gain → dry + delay input
-    this._envGain = ctx.createGain();
-    this._envGain.gain.value = 0; // ADSR starts at 0
-    this._envGain.connect(this._dryGain);
-    this._envGain.connect(this._delayNode);
-
-    // Filter → envelope
-    this._filter = ctx.createBiquadFilter();
-    this._filter.type = this._filterType;
-    this._filter.frequency.value = this._filterCutoff;
-    this._filter.Q.value = this._filterQ;
-    this._filter.connect(this._envGain);
-
-    // Oscillators → filter
-    for (let i = 0; i < 3; i++) {
-      if (this._waveforms[i] === "off") continue;
-
-      this._oscGains[i] = ctx.createGain();
-      this._oscGains[i].gain.value = this._oscLevels[i];
-      this._oscGains[i].connect(this._filter);
-
-      this._oscs[i] = ctx.createOscillator();
-      this._oscs[i].type = this._waveforms[i];
-      this._oscs[i].frequency.value = this._frequency;
-      this._oscs[i].connect(this._oscGains[i]);
-      this._oscs[i].start();
-    }
-  }
-
-  _buildDelay() {
-    const ctx = this._ctx;
-
-    // Dry pass-through
+    // Delay effect
     this._dryGain = ctx.createGain();
     this._dryGain.gain.value = 1;
+    this._dryGain.connect(this._masterGain);
 
-    // Delay line
     this._delayNode = ctx.createDelay(2.0);
     this._delayNode.delayTime.value = this._delayTime;
 
-    // Feedback loop
     this._delayFeedback = ctx.createGain();
     this._delayFeedback.gain.value = this._delayFeedbackValue;
     this._delayNode.connect(this._delayFeedback);
     this._delayFeedback.connect(this._delayNode);
 
-    // Wet output
     this._delayWet = ctx.createGain();
     this._delayWet.gain.value = this._delayEnabled ? 0.5 : 0;
     this._delayNode.connect(this._delayWet);
+    this._delayWet.connect(this._masterGain);
+
+    // Filter → dry + delay input
+    this._filter = ctx.createBiquadFilter();
+    this._filter.type = this._filterType;
+    this._filter.frequency.value = this._filterCutoff;
+    this._filter.Q.value = this._filterQ;
+    this._filter.connect(this._dryGain);
+    this._filter.connect(this._delayNode);
+
+    this._chainBuilt = true;
   }
 
-  /* ---- internal: ADSR ---- */
+  /* ---- internal: per-voice creation ---- */
 
-  _triggerAttack() {
-    const now = this._ctx.currentTime;
-    const g = this._envGain.gain;
-    g.cancelScheduledValues(now);
+  _createVoice(freq) {
+    const ctx = this._ctx;
+
+    // Per-voice envelope gain → shared filter
+    const envGain = ctx.createGain();
+    envGain.gain.value = 0;
+    envGain.connect(this._filter);
+
+    // Create oscillators for this voice
+    const oscs = [null, null, null];
+    const oscGains = [null, null, null];
+
+    for (let i = 0; i < 3; i++) {
+      if (this._waveforms[i] === "off") continue;
+
+      oscGains[i] = ctx.createGain();
+      oscGains[i].gain.value = this._oscLevels[i];
+      oscGains[i].connect(envGain);
+
+      oscs[i] = ctx.createOscillator();
+      oscs[i].type = this._waveforms[i];
+      oscs[i].frequency.value = freq;
+      oscs[i].connect(oscGains[i]);
+      oscs[i].start();
+    }
+
+    // Trigger ADSR attack
+    const now = ctx.currentTime;
+    const g = envGain.gain;
     g.setValueAtTime(0, now);
-    g.linearRampToValueAtTime(1, now + this._attack);
-    g.linearRampToValueAtTime(this._sustain, now + this._attack + this._decay);
+    g.linearRampToValueAtTime(1, now + Math.max(this._attack, 0.002));
+    g.linearRampToValueAtTime(
+      this._sustain,
+      now + Math.max(this._attack, 0.002) + Math.max(this._decay, 0.002)
+    );
+
+    return { oscs, oscGains, envGain };
   }
 
-  _triggerRelease() {
+  _releaseVoice(voice) {
     const now = this._ctx.currentTime;
-    const g = this._envGain.gain;
+    const g = voice.envGain.gain;
     g.cancelScheduledValues(now);
     g.setValueAtTime(g.value, now);
-    g.linearRampToValueAtTime(0, now + this._release);
+    g.linearRampToValueAtTime(0, now + Math.max(this._release, 0.005));
+
+    // Schedule node cleanup after release completes
+    const ms = this._release * 1000 + 80;
+    setTimeout(() => {
+      for (let i = 0; i < 3; i++) {
+        if (voice.oscs[i]) {
+          voice.oscs[i].stop();
+          voice.oscs[i].disconnect();
+        }
+        if (voice.oscGains[i]) {
+          voice.oscGains[i].disconnect();
+        }
+      }
+      voice.envGain.disconnect();
+    }, ms);
   }
 
-  /* ---- internal: teardown ---- */
+  /* ---- MIDI helpers ---- */
 
-  _teardown() {
-    for (let i = 0; i < 3; i++) {
-      if (this._oscs[i]) {
-        this._oscs[i].stop();
-        this._oscs[i].disconnect();
-        this._oscs[i] = null;
-      }
-      if (this._oscGains[i]) {
-        this._oscGains[i].disconnect();
-        this._oscGains[i] = null;
-      }
-    }
-    const nodes = [
-      "_filter",
-      "_envGain",
-      "_masterGain",
-      "_delayNode",
-      "_delayFeedback",
-      "_delayWet",
-      "_dryGain",
-    ];
-    for (const key of nodes) {
-      if (this[key]) {
-        this[key].disconnect();
-        this[key] = null;
-      }
-    }
-  }
-
-  /** Rebuild the graph without audible gap (used when toggling an osc on/off). */
-  _rebuildWhilePlaying() {
-    this._teardown();
-    this._buildGraph();
-    // Jump straight to sustain level (skip attack since we're already playing)
-    const now = this._ctx.currentTime;
-    this._envGain.gain.cancelScheduledValues(now);
-    this._envGain.gain.setValueAtTime(this._sustain, now);
+  /** Convert MIDI note number to note name (e.g. 60 → "C4"). */
+  static midiToName(midi) {
+    const names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+    const octave = Math.floor(midi / 12) - 1;
+    return names[midi % 12] + octave;
   }
 }

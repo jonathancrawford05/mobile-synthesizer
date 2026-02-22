@@ -5,12 +5,13 @@
  * Safe to call on pages that lack these elements — missing IDs are skipped.
  */
 
+import { initKeyboard } from "./keyboard.js";
+
 /**
  * @param {import('../audio/engine.js').AudioEngine} engine
  */
 export function bindControls(engine) {
-  bindPlayButton(engine);
-  bindFrequencySlider(engine);
+  initKeyboard(document.getElementById("keyboard"), engine);
   bindGainSlider(engine);
   bindOscillators(engine);
   bindFilter(engine);
@@ -18,39 +19,7 @@ export function bindControls(engine) {
   bindDelay(engine);
 }
 
-/* ---- play / stop ---- */
-
-function bindPlayButton(engine) {
-  const btn = document.getElementById("play-toggle");
-  if (!btn) return;
-
-  const label = btn.querySelector(".play-label");
-
-  btn.addEventListener("click", () => {
-    const playing = engine.toggle();
-    if (label) {
-      label.textContent = playing ? "Stop" : "Play";
-    }
-    btn.setAttribute("aria-pressed", String(playing));
-  });
-}
-
-/* ---- frequency & master gain ---- */
-
-function bindFrequencySlider(engine) {
-  const slider = document.getElementById("freq-slider");
-  const readout = document.getElementById("freq-value");
-  if (!slider) return;
-
-  const update = () => {
-    const hz = Number(slider.value);
-    engine.setFrequency(hz);
-    if (readout) readout.textContent = hz + " Hz";
-  };
-
-  slider.addEventListener("input", update);
-  update();
-}
+/* ---- master gain ---- */
 
 function bindGainSlider(engine) {
   const slider = document.getElementById("gain-slider");

@@ -13,6 +13,51 @@
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+  /* Piano keyboard */
+  #keyboard {
+    position: relative;
+    height: 7.5rem;
+    user-select: none;
+    touch-action: none;
+    display: flex;
+  }
+  .piano-key {
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+  }
+  .piano-key--white {
+    background: #f8f8f8;
+    border-right: 1px solid #d1d5db;
+    border-bottom: 3px solid #d1d5db;
+    border-radius: 0 0 4px 4px;
+    height: 100%;
+    z-index: 1;
+  }
+  .piano-key--white:first-child { border-radius: 0 0 4px 4px; }
+  .piano-key--white:hover { background: #e8e8f0; }
+  .piano-key--white.piano-key--active { background: #c4b5fd; }
+  .piano-key--black {
+    position: absolute;
+    top: 0;
+    height: 60%;
+    background: #1e1b4b;
+    border-radius: 0 0 3px 3px;
+    border-bottom: 3px solid #0f0a30;
+    z-index: 2;
+  }
+  .piano-key--black:hover { background: #312e81; }
+  .piano-key--black.piano-key--active { background: #7c3aed; }
+  .piano-key__label {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.625rem;
+    color: #9ca3af;
+    pointer-events: none;
+  }
 </style>
 {% endblock %}
 
@@ -36,27 +81,18 @@
 </div>
 <main class="flex-1 overflow-y-auto p-4">
 <div class="space-y-6">
-<!-- Play / Stop -->
-<section class="flex items-center gap-4">
-<button id="play-toggle" aria-pressed="false" class="flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-bold text-white transition-colors hover:bg-primary/80">
-<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
-<path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,39.87V216.13A15.94,15.94,0,0,0,80,232a16.07,16.07,0,0,0,8.36-2.35L232.4,141.51a15.81,15.81,0,0,0,0-27ZM80,215.94V40l143.83,88Z"></path>
-</svg>
-<span class="play-label">Play</span>
-</button>
-<span class="text-sm text-gray-500 dark:text-gray-400">Tap to start / stop the oscillator</span>
-</section>
-<!-- Frequency -->
+<!-- Keyboard -->
 <section>
 <div class="mb-2 flex items-center justify-between">
-<h2 class="text-lg font-bold text-gray-900 dark:text-white">Frequency</h2>
-<span id="freq-value" class="text-sm font-medium text-primary">440 Hz</span>
+<h2 class="text-lg font-bold text-gray-900 dark:text-white">Keyboard</h2>
+<div class="flex items-center gap-2">
+<button id="octave-down" class="rounded bg-primary/10 px-2 py-1 text-sm font-bold text-primary hover:bg-primary/20 dark:bg-primary/20 dark:hover:bg-primary/30">&lt;</button>
+<span id="octave-display" class="text-sm font-medium text-gray-600 dark:text-gray-300">C3–B4</span>
+<button id="octave-up" class="rounded bg-primary/10 px-2 py-1 text-sm font-bold text-primary hover:bg-primary/20 dark:bg-primary/20 dark:hover:bg-primary/30">&gt;</button>
 </div>
-<input id="freq-slider" type="range" min="20" max="2000" value="440" step="1" class="h-2 w-full cursor-pointer appearance-none rounded-full bg-primary/20 accent-primary"/>
-<div class="mt-1 flex justify-between text-xs text-gray-500 dark:text-gray-400">
-<span>20 Hz</span>
-<span>2000 Hz</span>
 </div>
+<div id="keyboard" class="overflow-hidden rounded-lg border border-primary/20"></div>
+<div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Tap keys or use A–L row on computer keyboard &middot; Z/X to shift octave</div>
 </section>
 <!-- Gain -->
 <section>
