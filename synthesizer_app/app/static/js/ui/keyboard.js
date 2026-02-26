@@ -4,10 +4,11 @@
  * Renders a 2-octave keyboard into a container element.
  * Supports touch, mouse (via pointer events), and QWERTY input.
  *
- * Computer keyboard mapping (lower octave):
+ * Computer keyboard mapping (physical key codes, lower octave):
  *   A=C  W=C#  S=D  E=D#  D=E  F=F  T=F#  G=G  Y=G#  H=A  U=A#  J=B
  * Upper octave:
  *   K=C  O=C#  L=D  P=D#  ;=E  '=F  ]=F#  \=G  (remaining via touch/octave shift)
+ * Uses e.code (physical position) for reliable cross-browser support.
  */
 
 const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
@@ -25,20 +26,26 @@ const BLACK_POSITIONS = {
   10: 5.75,  // A# → after white key 5 (A)
 };
 
-// QWERTY → semitone offset from base octave
-const KEY_MAP = {
-  a: 0, w: 1, s: 2, e: 3, d: 4,
-  f: 5, t: 6, g: 7, y: 8, h: 9,
-  u: 10, j: 11,
-  k: 12, o: 13, l: 14, p: 15, ";": 16,
-  "'": 17, "]": 18, "\\": 19,
+// Physical key code → semitone offset from base octave.
+// Using e.code (physical position) instead of e.key so that
+// punctuation keys (Quote, Bracket, Backslash) work reliably
+// across browsers, OS locales, and dead-key configurations.
+const CODE_MAP = {
+  KeyA: 0, KeyW: 1, KeyS: 2, KeyE: 3, KeyD: 4,
+  KeyF: 5, KeyT: 6, KeyG: 7, KeyY: 8, KeyH: 9,
+  KeyU: 10, KeyJ: 11,
+  KeyK: 12, KeyO: 13, KeyL: 14, KeyP: 15, Semicolon: 16,
+  Quote: 17, BracketRight: 18, Backslash: 19,
 };
 
-// Reverse lookup: semitone offset → display key label
-const OFFSET_TO_KEY = {};
-for (const [k, v] of Object.entries(KEY_MAP)) {
-  OFFSET_TO_KEY[v] = k.toUpperCase();
-}
+// Display labels for each offset (shown on piano keys)
+const CODE_TO_LABEL = {
+  0: "A", 1: "W", 2: "S", 3: "E", 4: "D",
+  5: "F", 6: "T", 7: "G", 8: "Y", 9: "H",
+  10: "U", 11: "J",
+  12: "K", 13: "O", 14: "L", 15: "P", 16: ";",
+  17: "'", 18: "]", 19: "\\",
+};
 
 /**
  * Build and bind a piano keyboard.
@@ -86,7 +93,7 @@ export function initKeyboard(container, engine) {
         const noteName = NOTE_NAMES[semitone] + (baseOctave + oct);
         const label = document.createElement("span");
         label.className = "piano-key__label";
-        const shortcut = OFFSET_TO_KEY[offset];
+        const shortcut = CODE_TO_LABEL[offset];
         label.textContent = shortcut ? noteName + "\n" + shortcut : noteName;
         key.appendChild(label);
 
@@ -170,29 +177,29 @@ export function initKeyboard(container, engine) {
     if (e.repeat) return;
     if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT" || e.target.tagName === "TEXTAREA") return;
 
-    const k = e.key.toLowerCase();
+    const code = e.code;
 
-    // Octave shift
-    if (k === "z" && baseOctave > 0) {
+    // Octave shift (Z/X by physical position)
+    if (code === "KeyZ" && baseOctave > 0) {
       baseOctave--;
       updateOctaveDisplay();
       render();
       return;
     }
-    if (k === "x" && baseOctave < 7) {
+    if (code === "KeyX" && baseOctave < 7) {
       baseOctave++;
       updateOctaveDisplay();
       render();
       return;
     }
 
-    const offset = KEY_MAP[k];
+    const offset = CODE_MAP[code];
     if (offset === undefined) return;
     e.preventDefault();
 
     const midi = baseMidi() + offset;
-    if (heldKeys.has(k)) return;
-    heldKeys.set(k, midi);
+    if (heldKeys.has(code)) return;
+    heldKeys.set(code, midi);
     engine.noteOn(midi);
 
     const el = container.querySelector(`[data-midi="${midi}"]`);
@@ -200,10 +207,10 @@ export function initKeyboard(container, engine) {
   }
 
   function handleKeyUp(e) {
-    const k = e.key.toLowerCase();
-    const midi = heldKeys.get(k);
+    const code = e.code;
+    const midi = heldKeys.get(code);
     if (midi === undefined) return;
-    heldKeys.delete(k);
+    heldKeys.delete(code);
     engine.noteOff(midi);
 
     const el = container.querySelector(`[data-midi="${midi}"]`);

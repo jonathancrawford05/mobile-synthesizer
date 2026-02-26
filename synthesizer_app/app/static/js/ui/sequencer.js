@@ -9,6 +9,7 @@
 import { AudioEngine } from "../audio/engine.js";
 
 const STEPS = 16;
+const PATTERN_STORAGE_KEY = "mobileSynth_seqPatterns";
 
 // Notes from high to low (rows top→bottom)
 const SCALE_NOTES = [
@@ -222,5 +223,123 @@ export function initSequencer(container, engine) {
     }
   });
 
+  // --- Pattern save/load ---
+  function loadPatterns() {
+    try {
+      const raw = localStorage.getItem(PATTERN_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function savePatterns(patterns) {
+    localStorage.setItem(PATTERN_STORAGE_KEY, JSON.stringify(patterns));
+  }
+
+  function serializeGrid() {
+    return { grid: grid.map((row) => [...row]), tempo };
+  }
+
+  function loadGridFromData(data) {
+    for (let r = 0; r < SCALE_NOTES.length; r++) {
+      for (let s = 0; s < STEPS; s++) {
+        grid[r][s] = data.grid[r] ? !!data.grid[r][s] : false;
+      }
+    }
+    if (data.tempo && tempoSlider) {
+      tempo = data.tempo;
+      tempoSlider.value = tempo;
+      if (tempoValue) tempoValue.textContent = tempo + " BPM";
+    }
+    render();
+  }
+
+  // Pattern selector
+  const patternSelect = document.getElementById("seq-pattern-select");
+  const patternSaveBtn = document.getElementById("seq-pattern-save");
+  const patternDeleteBtn = document.getElementById("seq-pattern-delete");
+  const patternSaveForm = document.getElementById("seq-pattern-save-form");
+  const patternNameInput = document.getElementById("seq-pattern-name-input");
+  const patternSaveConfirm = document.getElementById("seq-pattern-save-confirm");
+  const patternSaveCancel = document.getElementById("seq-pattern-save-cancel");
+
+  function populatePatternList() {
+    if (!patternSelect) return;
+    const patterns = loadPatterns();
+    patternSelect.innerHTML = '<option value="">Load pattern...</option>';
+    patterns.forEach((p, i) => {
+      const opt = document.createElement("option");
+      opt.value = i;
+      opt.textContent = p.name;
+      patternSelect.appendChild(opt);
+    });
+  }
+
+  if (patternSelect) {
+    patternSelect.addEventListener("change", () => {
+      const idx = Number(patternSelect.value);
+      if (isNaN(idx)) return;
+      const patterns = loadPatterns();
+      if (patterns[idx]) {
+        if (playing) stopPlayback();
+        loadGridFromData(patterns[idx].data);
+      }
+    });
+  }
+
+  function doPatternSave() {
+    const name = patternNameInput ? patternNameInput.value.trim() : "";
+    if (!name) return;
+    const patterns = loadPatterns();
+    const idx = patterns.findIndex((p) => p.name === name);
+    const entry = { name, data: serializeGrid() };
+    if (idx >= 0) {
+      patterns[idx] = entry;
+    } else {
+      patterns.push(entry);
+    }
+    savePatterns(patterns);
+    populatePatternList();
+    hidePatternSaveForm();
+  }
+
+  function showPatternSaveForm() {
+    if (patternSaveForm) {
+      patternSaveForm.classList.remove("hidden");
+      if (patternNameInput) {
+        patternNameInput.value = "";
+        patternNameInput.focus();
+      }
+    }
+  }
+
+  function hidePatternSaveForm() {
+    if (patternSaveForm) patternSaveForm.classList.add("hidden");
+  }
+
+  if (patternSaveBtn) patternSaveBtn.addEventListener("click", showPatternSaveForm);
+  if (patternSaveConfirm) patternSaveConfirm.addEventListener("click", doPatternSave);
+  if (patternSaveCancel) patternSaveCancel.addEventListener("click", hidePatternSaveForm);
+  if (patternNameInput) {
+    patternNameInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") doPatternSave();
+      if (e.key === "Escape") hidePatternSaveForm();
+    });
+  }
+
+  if (patternDeleteBtn) {
+    patternDeleteBtn.addEventListener("click", () => {
+      const idx = Number(patternSelect ? patternSelect.value : "");
+      if (isNaN(idx)) return;
+      const patterns = loadPatterns();
+      if (!patterns[idx]) return;
+      patterns.splice(idx, 1);
+      savePatterns(patterns);
+      populatePatternList();
+    });
+  }
+
+  populatePatternList();
   render();
 }

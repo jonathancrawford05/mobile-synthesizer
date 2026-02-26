@@ -71,6 +71,16 @@ export class AudioEngine {
     return this._voices.size > 0;
   }
 
+  /** Expose AudioContext (created on first note). */
+  get context() {
+    return this._ctx;
+  }
+
+  /** Expose master gain node for recording tap. */
+  get masterGainNode() {
+    return this._masterGain;
+  }
+
   /* ---- note API ---- */
 
   /** Play a note by MIDI number (e.g. 60 = C4). */

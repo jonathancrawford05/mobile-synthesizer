@@ -63,6 +63,9 @@
   .seq-cell--on { background: #1919e6 !important; }
   .seq-cell--on:hover { background: #1414b8 !important; }
   .seq-cell--playing { box-shadow: inset 0 0 0 1.5px #7c3aed; }
+  @keyframes pulse-recording { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .recording-active #seq-record-dot { animation: pulse-recording 1s ease-in-out infinite; }
+  .recording-active #seq-record { background: rgba(220, 38, 38, 0.4); }
 </style>
 {% endblock %}
 
@@ -96,12 +99,30 @@ Play
 Stop
 </button>
 <button id="seq-clear" class="rounded-lg bg-primary/10 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-primary/20 dark:bg-primary/20 dark:text-gray-200 dark:hover:bg-primary/30">Clear</button>
+<button id="seq-record" class="flex items-center gap-1.5 rounded-lg bg-red-600/20 px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-600/30 transition-colors">
+<span id="seq-record-dot" class="inline-block h-2.5 w-2.5 rounded-full bg-red-500"></span>
+<span id="seq-record-label">Record</span>
+</button>
+<span id="seq-record-timer" class="hidden text-xs font-mono text-red-400"></span>
 <div class="ml-auto flex items-center gap-2">
 <label class="text-sm font-medium text-gray-700 dark:text-gray-300" for="seq-tempo">Tempo</label>
 <input id="seq-tempo" type="range" min="40" max="240" value="120" step="1" class="h-2 w-24 cursor-pointer appearance-none rounded-full bg-primary/20 accent-primary"/>
 <span id="seq-tempo-value" class="w-16 text-right text-sm font-medium text-primary">120 BPM</span>
 </div>
 </section>
+<!-- Pattern save/load -->
+<section class="flex flex-wrap items-center gap-2">
+<select id="seq-pattern-select" class="form-select flex-1 appearance-none rounded-lg border-none bg-primary/10 px-4 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary dark:bg-primary/20 dark:text-white">
+<option value="">Load pattern...</option>
+</select>
+<button id="seq-pattern-save" class="rounded-lg bg-primary px-3 py-2 text-sm font-bold text-white hover:bg-primary/80">Save</button>
+<button id="seq-pattern-delete" class="rounded-lg bg-red-500/20 px-3 py-2 text-sm font-medium text-red-400 hover:bg-red-500/30">Delete</button>
+</section>
+<div id="seq-pattern-save-form" class="hidden flex items-center gap-2">
+<input id="seq-pattern-name-input" type="text" placeholder="Pattern name..." maxlength="40" class="flex-1 rounded-lg border border-primary/30 bg-primary/5 px-4 py-2 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary dark:bg-primary/10 dark:text-white dark:placeholder-gray-400"/>
+<button id="seq-pattern-save-confirm" class="rounded-lg bg-green-600 px-3 py-2 text-sm font-bold text-white hover:bg-green-500">OK</button>
+<button id="seq-pattern-save-cancel" class="rounded-lg bg-gray-500 px-3 py-2 text-sm font-bold text-white hover:bg-gray-400">Cancel</button>
+</div>
 <div class="text-xs text-gray-500 dark:text-gray-400">Click cells to toggle notes &middot; Space to play/stop</div>
 <!-- Grid -->
 <section class="overflow-x-auto">
@@ -166,6 +187,7 @@ Stop
 <script type="module">
 import { AudioEngine } from "/static/js/audio/engine.js";
 import { initSequencer } from "/static/js/ui/sequencer.js";
+import { AudioRecorder, downloadBlob } from "/static/js/audio/recorder.js";
 
 const engine = new AudioEngine();
 initSequencer(document.getElementById("seq-grid"), engine);
@@ -194,6 +216,55 @@ if (gain) {
     if (gainVal) gainVal.textContent = Math.round(gain.value * 100) + "%";
   };
   gain.addEventListener("input", update);
+}
+
+// --- Recording ---
+const recBtn = document.getElementById("seq-record");
+const recLabel = document.getElementById("seq-record-label");
+const recTimer = document.getElementById("seq-record-timer");
+if (recBtn) {
+  let recorder = null;
+  let timerInterval = null;
+  let startTime = 0;
+
+  function formatTime(ms) {
+    const s = Math.floor(ms / 1000);
+    const m = Math.floor(s / 60);
+    return m + ":" + String(s % 60).padStart(2, "0");
+  }
+
+  recBtn.addEventListener("click", async () => {
+    if (recorder && recorder.recording) {
+      const blob = await recorder.stop();
+      recLabel.textContent = "Record";
+      document.body.classList.remove("recording-active");
+      recTimer.classList.add("hidden");
+      clearInterval(timerInterval);
+
+      if (blob && blob.size > 0) {
+        const ext = blob.type.includes("ogg") ? "ogg" : "webm";
+        const ts = new Date().toISOString().slice(0, 19).replace(/[T:]/g, "-");
+        downloadBlob(blob, "seq-recording-" + ts + "." + ext);
+      }
+    } else {
+      // Init audio chain if needed
+      if (!engine.context || !engine.masterGainNode) {
+        engine.noteOn(0);
+        engine.noteOff(0);
+        await new Promise((r) => setTimeout(r, 100));
+      }
+      recorder = new AudioRecorder(engine.context, engine.masterGainNode);
+      recorder.start();
+      recLabel.textContent = "Stop";
+      document.body.classList.add("recording-active");
+      startTime = Date.now();
+      recTimer.textContent = "0:00";
+      recTimer.classList.remove("hidden");
+      timerInterval = setInterval(() => {
+        recTimer.textContent = formatTime(Date.now() - startTime);
+      }, 500);
+    }
+  });
 }
 </script>
 {% endblock %}

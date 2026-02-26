@@ -127,11 +127,14 @@ function bindDelay(engine) {
 function bindPresetSelector(engine) {
   const select = document.getElementById("preset-select");
   const saveBtn = document.getElementById("preset-save");
+  const saveForm = document.getElementById("preset-save-form");
+  const nameInput = document.getElementById("preset-name-input");
+  const confirmBtn = document.getElementById("preset-save-confirm");
+  const cancelBtn = document.getElementById("preset-save-cancel");
   if (!select) return;
 
   function populateList() {
     const presets = getAllPresets();
-    // Keep the first "Select preset..." option
     select.innerHTML = '<option value="">Select preset...</option>';
     presets.forEach((p, i) => {
       const opt = document.createElement("option");
@@ -150,13 +153,42 @@ function bindPresetSelector(engine) {
     }
   });
 
+  function doSave() {
+    const name = nameInput ? nameInput.value.trim() : "";
+    if (!name) return;
+    const params = readParamsFromDOM();
+    savePreset(name, params);
+    populateList();
+    hideSaveForm();
+  }
+
+  function showSaveForm() {
+    if (saveForm) {
+      saveForm.classList.remove("hidden");
+      if (nameInput) {
+        nameInput.value = "";
+        nameInput.focus();
+      }
+    }
+  }
+
+  function hideSaveForm() {
+    if (saveForm) saveForm.classList.add("hidden");
+  }
+
   if (saveBtn) {
-    saveBtn.addEventListener("click", () => {
-      const name = prompt("Preset name:");
-      if (!name || !name.trim()) return;
-      const params = readParamsFromDOM();
-      savePreset(name.trim(), params);
-      populateList();
+    saveBtn.addEventListener("click", showSaveForm);
+  }
+  if (confirmBtn) {
+    confirmBtn.addEventListener("click", doSave);
+  }
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", hideSaveForm);
+  }
+  if (nameInput) {
+    nameInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") doSave();
+      if (e.key === "Escape") hideSaveForm();
     });
   }
 
