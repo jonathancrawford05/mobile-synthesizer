@@ -6,6 +6,12 @@
  */
 
 import { initKeyboard } from "./keyboard.js";
+import {
+  getAllPresets,
+  savePreset,
+  readParamsFromDOM,
+  applyPreset,
+} from "./presets.js";
 
 /**
  * @param {import('../audio/engine.js').AudioEngine} engine
@@ -17,6 +23,7 @@ export function bindControls(engine) {
   bindFilter(engine);
   bindADSR(engine);
   bindDelay(engine);
+  bindPresetSelector(engine);
 }
 
 /* ---- master gain ---- */
@@ -113,6 +120,47 @@ function bindDelay(engine) {
     engine.setDelayFeedback(val);
     return Math.round(val * 100) + "%";
   });
+}
+
+/* ---- presets ---- */
+
+function bindPresetSelector(engine) {
+  const select = document.getElementById("preset-select");
+  const saveBtn = document.getElementById("preset-save");
+  if (!select) return;
+
+  function populateList() {
+    const presets = getAllPresets();
+    // Keep the first "Select preset..." option
+    select.innerHTML = '<option value="">Select preset...</option>';
+    presets.forEach((p, i) => {
+      const opt = document.createElement("option");
+      opt.value = i;
+      opt.textContent = p.name + (p.category === "factory" ? "" : " (user)");
+      select.appendChild(opt);
+    });
+  }
+
+  select.addEventListener("change", () => {
+    const idx = Number(select.value);
+    if (isNaN(idx)) return;
+    const presets = getAllPresets();
+    if (presets[idx]) {
+      applyPreset(presets[idx].params, engine);
+    }
+  });
+
+  if (saveBtn) {
+    saveBtn.addEventListener("click", () => {
+      const name = prompt("Preset name:");
+      if (!name || !name.trim()) return;
+      const params = readParamsFromDOM();
+      savePreset(name.trim(), params);
+      populateList();
+    });
+  }
+
+  populateList();
 }
 
 /* ---- helpers ---- */

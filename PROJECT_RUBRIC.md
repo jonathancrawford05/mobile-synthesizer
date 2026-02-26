@@ -26,7 +26,7 @@
 - Wire JS event handlers to audio parameters via `static/js/audio/` modules
 - Consider moving heavyweight unused deps (librosa, sqlalchemy, etc.) to optional Poetry groups
 
-### Phase 3: Synthesizer Engine Deepening (Week 7-9) — IN PROGRESS
+### Phase 3: Synthesizer Engine Deepening (Week 7-9) — COMPLETE
 
 | Component | Description | Cost | Key Considerations | Testing Strategy |
 |-----------|-------------|------|-------------------|------------------|
@@ -95,22 +95,32 @@
 - ✅ ES module architecture (audio/engine.js, ui/controls.js, app.js)
 - **Test**: Can we hear a tone and control its pitch? ✅
 
-### Iteration 3: Synthesizer Engine Deepening — IN PROGRESS
-- Wire all 3 oscillators with independent waveform control
-- BiquadFilter with cutoff frequency and resonance sliders
-- ADSR envelope (attack/decay/sustain/release) for smooth note shaping
-- Delay effect with time, feedback, and enable/disable
-- **Test**: Can we layer oscillators, shape the sound with filter + ADSR, and add delay?
+### Iteration 3: Synthesizer Engine Deepening — COMPLETE
+- ✅ Wire all 3 oscillators with independent waveform control
+- ✅ BiquadFilter with cutoff frequency and resonance sliders
+- ✅ ADSR envelope (attack/decay/sustain/release) for smooth note shaping
+- ✅ Delay effect with time, feedback, and enable/disable
+- ✅ Polyphonic noteOn/noteOff engine (8-voice polyphony with voice stealing)
+- ✅ On-screen piano keyboard with QWERTY input (A-row + K-row, Z/X octave shift)
+- ✅ Note labels and shortcut hints on keyboard keys
+- **Test**: Can we layer oscillators, shape the sound with filter + ADSR, and add delay? ✅
 
-### Iteration 4: Presets & Data
-- localStorage preset save/load on /presets page
-- Database layer only if user accounts are needed
-- **Test**: Can we save and recall synth parameter snapshots?
+### Iteration 4: Presets & Step Sequencer — COMPLETE
+- ✅ localStorage preset save/load with 7 factory presets
+- ✅ /presets page: browse All/Factory/User tabs, load and delete presets
+- ✅ Preset selector on synthesizer page with save button
+- ✅ Cross-page preset loading via URL query parameter (?preset=name)
+- ✅ 16-step × 14-note step sequencer on /sequencer page
+- ✅ Sequencer transport controls (play/stop/clear, tempo 40–240 BPM)
+- ✅ Sequencer sound controls (waveform, filter cutoff, gain)
+- ✅ Space bar toggle for sequencer play/stop
+- **Test**: Can we save/recall presets and compose patterns with the sequencer? ✅
 
 ### Iteration 5: WebSocket & Advanced Features
 - Real-time parameter sync via WebSocket
 - Advanced effects (reverb, chorus)
 - PWA offline support, audio recording
+- Visual/creative interface (FractalSoundExplorer-inspired)
 - **Test**: Do changes sync across clients in real-time?
 
 ## Risk Mitigation

@@ -2,92 +2,198 @@
 
 {% block title %}Sequencer - Mobile Synthesizer{% endblock %}
 
+{% block head_extra %}
+<style>
+  .form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239393c8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+  }
+  /* Sequencer grid */
+  #seq-grid { user-select: none; }
+  .seq-row { display: flex; gap: 2px; margin-bottom: 2px; }
+  .seq-header { margin-bottom: 4px; }
+  .seq-label {
+    width: 2.5rem;
+    min-width: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 0.375rem;
+    font-size: 0.625rem;
+    font-weight: 500;
+    color: #9ca3af;
+  }
+  .seq-label--root { color: #c4b5fd; font-weight: 700; }
+  .seq-step-num {
+    flex: 1;
+    text-align: center;
+    font-size: 0.5rem;
+    color: #6b7280;
+    position: relative;
+    padding-bottom: 4px;
+  }
+  .seq-indicator {
+    position: absolute;
+    bottom: 0;
+    left: 25%;
+    right: 25%;
+    height: 2px;
+    border-radius: 1px;
+    background: transparent;
+    transition: background 0.1s;
+  }
+  .seq-indicator--active { background: #7c3aed; }
+  .seq-cell {
+    flex: 1;
+    aspect-ratio: 1;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    background: rgba(25, 25, 230, 0.08);
+    transition: background 0.1s;
+    padding: 0;
+    min-width: 0;
+  }
+  .seq-cell:hover { background: rgba(25, 25, 230, 0.15); }
+  .seq-cell--beat { background: rgba(25, 25, 230, 0.12); }
+  .seq-cell--beat:hover { background: rgba(25, 25, 230, 0.2); }
+  .seq-cell--on { background: #1919e6 !important; }
+  .seq-cell--on:hover { background: #1414b8 !important; }
+  .seq-cell--playing { box-shadow: inset 0 0 0 1.5px #7c3aed; }
+</style>
+{% endblock %}
+
 {% block body %}
-<div class="relative flex h-auto min-h-screen w-full flex-col justify-between overflow-x-hidden">
-<div class="flex-grow">
-<header class="sticky top-0 z-10 flex items-center justify-between border-b border-primary/20 bg-background-light/80 p-4 pb-2 backdrop-blur-sm dark:bg-background-dark/80">
-<button class="text-slate-800 dark:text-slate-200">
-<svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
-<path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
-</svg>
-</button>
-<h1 class="text-lg font-bold text-slate-900 dark:text-white">Sequencer</h1>
-<div class="w-6"></div>
+<div class="flex h-screen flex-col">
+<header class="flex items-center justify-between border-b border-primary/20 p-4">
+<h1 class="flex-1 text-center text-lg font-bold text-gray-900 dark:text-white">Sequencer</h1>
 </header>
-<main class="p-4">
-<h2 class="px-4 pb-3 pt-5 text-2xl font-bold text-slate-900 dark:text-white">Sequence</h2>
-<div class="grid grid-cols-4 gap-2 sm:grid-cols-8">
-<div class="relative aspect-square overflow-hidden rounded-lg bg-primary/20"></div>
-<div class="relative aspect-square overflow-hidden rounded-lg bg-primary/20"></div>
-<div class="relative aspect-square overflow-hidden rounded-lg bg-primary/20"></div>
-<div class="relative aspect-square overflow-hidden rounded-lg ring-2 ring-primary bg-primary/40"></div>
-<div class="relative aspect-square overflow-hidden rounded-lg bg-primary/20"></div>
-<div class="relative aspect-square overflow-hidden rounded-lg bg-primary/20"></div>
-<div class="relative aspect-square overflow-hidden rounded-lg bg-primary/20"></div>
-<div class="relative aspect-square overflow-hidden rounded-lg bg-primary/20"></div>
-<div class="relative aspect-square overflow-hidden rounded-lg bg-primary/20"></div>
-<div class="relative aspect-square overflow-hidden rounded-lg bg-primary/20"></div>
-<div class="relative aspect-square overflow-hidden rounded-lg bg-primary/20"></div>
-<div class="relative aspect-square overflow-hidden rounded-lg bg-primary/20"></div>
-<div class="relative aspect-square overflow-hidden rounded-lg bg-primary/20"></div>
-<div class="relative aspect-square overflow-hidden rounded-lg bg-primary/20"></div>
-<div class="relative aspect-square overflow-hidden rounded-lg bg-primary/20"></div>
-<div class="relative aspect-square overflow-hidden rounded-lg bg-primary/20"></div>
+<div class="border-b border-primary/20">
+<nav class="flex px-4">
+<a class="border-b-2 border-transparent px-4 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" href="/synthesizer">Synthesizer</a>
+<a class="border-b-2 border-transparent px-4 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" href="/presets">Presets</a>
+<a class="border-b-2 border-transparent px-4 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" href="/mixer">Mixer</a>
+<a class="border-b-2 border-primary px-4 py-3 text-sm font-bold text-primary" href="/sequencer">Sequencer</a>
+</nav>
 </div>
-<h2 class="px-4 pb-3 pt-5 text-2xl font-bold text-slate-900 dark:text-white">Controls</h2>
-<div class="space-y-4 p-4">
-<div class="grid grid-cols-4 items-center gap-4">
-<label class="text-base font-medium text-slate-700 dark:text-slate-300">Tempo</label>
-<div class="col-span-3 flex items-center gap-4">
-<input class="h-1 w-full cursor-pointer appearance-none rounded-full bg-primary/20 accent-primary" max="240" min="40" type="range" value="120"/>
-<span class="w-16 text-sm font-normal text-slate-600 dark:text-slate-400">120 BPM</span>
+<main class="flex-1 overflow-y-auto p-4">
+<div class="space-y-4">
+<!-- Transport controls -->
+<section class="flex flex-wrap items-center gap-3">
+<button id="seq-play" class="flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 font-bold text-white hover:bg-primary/80">
+<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+<path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,39.87V216.13A15.94,15.94,0,0,0,80,232a16.07,16.07,0,0,0,8.36-2.35L232.4,141.51a15.81,15.81,0,0,0,0-27ZM80,215.94V40l143.83,88Z"></path>
+</svg>
+Play
+</button>
+<button id="seq-stop" class="hidden flex items-center gap-2 rounded-lg bg-red-500 px-5 py-2.5 font-bold text-white hover:bg-red-600">
+<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+<path d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Zm0,176H48V48H208Z"></path>
+</svg>
+Stop
+</button>
+<button id="seq-clear" class="rounded-lg bg-primary/10 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-primary/20 dark:bg-primary/20 dark:text-gray-200 dark:hover:bg-primary/30">Clear</button>
+<div class="ml-auto flex items-center gap-2">
+<label class="text-sm font-medium text-gray-700 dark:text-gray-300" for="seq-tempo">Tempo</label>
+<input id="seq-tempo" type="range" min="40" max="240" value="120" step="1" class="h-2 w-24 cursor-pointer appearance-none rounded-full bg-primary/20 accent-primary"/>
+<span id="seq-tempo-value" class="w-16 text-right text-sm font-medium text-primary">120 BPM</span>
+</div>
+</section>
+<div class="text-xs text-gray-500 dark:text-gray-400">Click cells to toggle notes &middot; Space to play/stop</div>
+<!-- Grid -->
+<section class="overflow-x-auto">
+<div id="seq-grid" class="min-w-[32rem]"></div>
+</section>
+<!-- Synth params -->
+<section>
+<h2 class="mb-3 text-lg font-bold text-gray-900 dark:text-white">Sound</h2>
+<div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+<select class="form-select w-full appearance-none rounded-lg border-none bg-primary/10 px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary dark:bg-primary/20 dark:text-white" id="osc1-type">
+<option value="sine">Osc 1: Sine</option>
+<option value="square">Osc 1: Square</option>
+<option value="sawtooth">Osc 1: Sawtooth</option>
+<option value="triangle">Osc 1: Triangle</option>
+</select>
+<div>
+<div class="mb-1 flex items-center justify-between">
+<label class="text-xs text-gray-600 dark:text-gray-400" for="filter-cutoff">Filter Cutoff</label>
+<span id="filter-cutoff-value" class="text-xs text-primary">2000 Hz</span>
+</div>
+<input id="filter-cutoff" type="range" min="20" max="20000" value="2000" step="1" class="h-2 w-full cursor-pointer appearance-none rounded-full bg-primary/20 accent-primary"/>
+</div>
+<div>
+<div class="mb-1 flex items-center justify-between">
+<label class="text-xs text-gray-600 dark:text-gray-400" for="gain-slider">Gain</label>
+<span id="gain-value" class="text-xs text-primary">50%</span>
+</div>
+<input id="gain-slider" type="range" min="0" max="1" value="0.5" step="0.01" class="h-2 w-full cursor-pointer appearance-none rounded-full bg-primary/20 accent-primary"/>
 </div>
 </div>
-<div class="grid grid-cols-4 items-center gap-4">
-<label class="text-base font-medium text-slate-700 dark:text-slate-300">Swing</label>
-<div class="col-span-3 flex items-center gap-4">
-<input class="h-1 w-full cursor-pointer appearance-none rounded-full bg-primary/20 accent-primary" max="100" min="0" type="range" value="50"/>
-<span class="w-16 text-sm font-normal text-slate-600 dark:text-slate-400">50%</span>
-</div>
-</div>
-<div class="grid grid-cols-4 items-center gap-4">
-<label class="text-base font-medium text-slate-700 dark:text-slate-300">Quantization</label>
-<div class="col-span-3 flex items-center gap-4">
-<input class="h-1 w-full cursor-pointer appearance-none rounded-full bg-primary/20 accent-primary" max="4" min="0" type="range" value="2"/>
-<span class="w-16 text-sm font-normal text-slate-600 dark:text-slate-400">1/16</span>
-</div>
-</div>
+</section>
 </div>
 </main>
-</div>
-<footer class="sticky bottom-0 border-t border-primary/20 bg-background-light/80 pt-2 backdrop-blur-sm dark:bg-background-dark/80">
-<nav class="flex justify-around px-4 pb-3 pt-2">
-<a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-600 dark:text-slate-400" href="/synthesizer">
+<footer class="border-t border-primary/20 bg-background-light dark:bg-background-dark/50">
+<nav class="flex items-center justify-around px-4 py-2">
+<a class="flex flex-col items-center gap-1 rounded-full p-2 text-gray-500 hover:text-primary dark:text-gray-400" href="/synthesizer">
 <svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
-<path d="M155.51,24.81a8,8,0,0,0-8.42.88L77.25,80H32A16,16,0,0,0,16,96v64a16,16,0,0,0,16,16H77.25l69.84,54.31A8,8,0,0,0,160,224V32A8,8,0,0,0,155.51,24.81ZM32,96H72v64H32ZM144,207.64,88,164.09V91.91l56-43.55Zm54-106.08a40,40,0,0,1,0,52.88,8,8,0,0,1-12-10.58,24,24,0,0,0,0-31.72,8,8,0,0,1,12-10.58ZM248,128a79.9,79.9,0,0,1-20.37,53.34,8,8,0,0,1-11.92-10.67,64,64,0,0,0,0-85.33,8,8,0,1,1,11.92-10.67A79.83,79.83,0,0,1,248,128Z"></path>
+<path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path>
 </svg>
-<p class="text-xs font-medium">Synthesizer</p>
 </a>
-<a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-600 dark:text-slate-400" href="/presets">
+<a class="flex flex-col items-center gap-1 rounded-full p-2 text-gray-500 hover:text-primary dark:text-gray-400" href="/presets">
 <svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
-<path d="M80,64a8,8,0,0,1,8-8H216a8,8,0,0,1,0,16H88A8,8,0,0,1,80,64Zm136,56H88a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Zm0,64H88a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16ZM44,52A12,12,0,1,0,56,64,12,12,0,0,0,44,52Zm0,64a12,12,0,1,0,12,12A12,12,0,0,0,44,116Zm0,64a12,12,0,1,0,12,12A12,12,0,0,0,44,180Z"></path>
+<path d="M184,32H72A16,16,0,0,0,56,48V224a8,8,0,0,0,12.24,6.78L128,193.43l59.77,37.35A8,8,0,0,0,200,224V48A16,16,0,0,0,184,32Zm0,177.57-51.77-32.35a8,8,0,0,0-8.48,0L72,209.57V48H184Z"></path>
 </svg>
-<p class="text-xs font-medium">Presets</p>
 </a>
-<a class="flex flex-1 flex-col items-center justify-end gap-1 text-slate-600 dark:text-slate-400" href="/mixer">
+<a class="flex flex-col items-center gap-1 rounded-full p-2 text-gray-500 hover:text-primary dark:text-gray-400" href="/recording">
 <svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
-<path d="M40,88H73a32,32,0,0,0,62,0h81a8,8,0,0,0,0-16H135a32,32,0,0,0-62,0H40a8,8,0,0,0,0,16Zm64-24A16,16,0,1,1,88,80,16,16,0,0,1,104,64ZM216,168H199a32,32,0,0,0-62,0H40a8,8,0,0,0,0,16h97a32,32,0,0,0,62,0h17a8,8,0,0,0,0-16Zm-48,24a16,16,0,1,1,16-16A16,16,0,0,1,168,192Z"></path>
+<path d="M164.44,105.34l-48-32A8,8,0,0,0,104,80v64a8,8,0,0,0,12.44,6.66l48-32a8,8,0,0,0,0-13.32ZM120,129.05V95l25.58,17ZM216,40H40A16,16,0,0,0,24,56V168a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,128H40V56H216V168Zm16,40a8,8,0,0,1-8,8H32a8,8,0,0,1,0-16H224A8,8,0,0,1,232,208Z"></path>
 </svg>
-<p class="text-xs font-medium">Mixer</p>
 </a>
-<a class="flex flex-1 flex-col items-center justify-end gap-1 text-primary" href="/sequencer">
+<a class="flex flex-col items-center gap-1 rounded-full p-2 text-primary" href="/sequencer">
 <svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
 <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm56,112H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48a8,8,0,0,1,0,16Z"></path>
 </svg>
-<p class="text-xs font-medium">Sequencer</p>
 </a>
 </nav>
-<div class="h-3"></div>
 </footer>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module">
+import { AudioEngine } from "/static/js/audio/engine.js";
+import { initSequencer } from "/static/js/ui/sequencer.js";
+
+const engine = new AudioEngine();
+initSequencer(document.getElementById("seq-grid"), engine);
+
+// Wire the sound controls on this page
+const osc1 = document.getElementById("osc1-type");
+if (osc1) {
+  osc1.addEventListener("change", () => engine.setOscWaveform(0, osc1.value));
+}
+
+const cutoff = document.getElementById("filter-cutoff");
+const cutoffVal = document.getElementById("filter-cutoff-value");
+if (cutoff) {
+  const update = () => {
+    engine.setFilterCutoff(Number(cutoff.value));
+    if (cutoffVal) cutoffVal.textContent = Math.round(cutoff.value) + " Hz";
+  };
+  cutoff.addEventListener("input", update);
+}
+
+const gain = document.getElementById("gain-slider");
+const gainVal = document.getElementById("gain-value");
+if (gain) {
+  const update = () => {
+    engine.setGain(Number(gain.value));
+    if (gainVal) gainVal.textContent = Math.round(gain.value * 100) + "%";
+  };
+  gain.addEventListener("input", update);
+}
+</script>
 {% endblock %}

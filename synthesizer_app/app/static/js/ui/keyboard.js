@@ -7,7 +7,7 @@
  * Computer keyboard mapping (lower octave):
  *   A=C  W=C#  S=D  E=D#  D=E  F=F  T=F#  G=G  Y=G#  H=A  U=A#  J=B
  * Upper octave:
- *   K=C  O=C#  L=D  P=D#  ;=E
+ *   K=C  O=C#  L=D  P=D#  ;=E  '=F  ]=F#  \=G  (remaining via touch/octave shift)
  */
 
 const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
@@ -31,7 +31,14 @@ const KEY_MAP = {
   f: 5, t: 6, g: 7, y: 8, h: 9,
   u: 10, j: 11,
   k: 12, o: 13, l: 14, p: 15, ";": 16,
+  "'": 17, "]": 18, "\\": 19,
 };
+
+// Reverse lookup: semitone offset → display key label
+const OFFSET_TO_KEY = {};
+for (const [k, v] of Object.entries(KEY_MAP)) {
+  OFFSET_TO_KEY[v] = k.toUpperCase();
+}
 
 /**
  * Build and bind a piano keyboard.
@@ -69,18 +76,19 @@ export function initKeyboard(container, engine) {
       for (let w = 0; w < WHITE_INDICES.length; w++) {
         const semitone = WHITE_INDICES[w];
         const midi = baseMidi() + oct * 12 + semitone;
+        const offset = oct * 12 + semitone;
         const key = document.createElement("button");
         key.className = "piano-key piano-key--white";
         key.dataset.midi = midi;
         key.style.width = (100 / totalWhite) + "%";
 
-        // Label on C keys
-        if (semitone === 0) {
-          const label = document.createElement("span");
-          label.className = "piano-key__label";
-          label.textContent = "C" + (baseOctave + oct);
-          key.appendChild(label);
-        }
+        // Note name label
+        const noteName = NOTE_NAMES[semitone] + (baseOctave + oct);
+        const label = document.createElement("span");
+        label.className = "piano-key__label";
+        const shortcut = OFFSET_TO_KEY[offset];
+        label.textContent = shortcut ? noteName + "\n" + shortcut : noteName;
+        key.appendChild(label);
 
         container.appendChild(key);
       }

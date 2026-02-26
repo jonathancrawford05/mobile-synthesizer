@@ -51,12 +51,15 @@
   .piano-key--black.piano-key--active { background: #7c3aed; }
   .piano-key__label {
     position: absolute;
-    bottom: 6px;
+    bottom: 4px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 0.625rem;
+    font-size: 0.5rem;
+    line-height: 1.3;
     color: #9ca3af;
     pointer-events: none;
+    white-space: pre-line;
+    text-align: center;
   }
 </style>
 {% endblock %}
@@ -81,6 +84,13 @@
 </div>
 <main class="flex-1 overflow-y-auto p-4">
 <div class="space-y-6">
+<!-- Preset selector -->
+<section class="flex items-center gap-2">
+<select id="preset-select" class="form-select flex-1 appearance-none rounded-lg border-none bg-primary/10 px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary dark:bg-primary/20 dark:text-white">
+<option value="">Select preset...</option>
+</select>
+<button id="preset-save" class="rounded-lg bg-primary px-4 py-2.5 text-sm font-bold text-white hover:bg-primary/80">Save</button>
+</section>
 <!-- Keyboard -->
 <section>
 <div class="mb-2 flex items-center justify-between">
